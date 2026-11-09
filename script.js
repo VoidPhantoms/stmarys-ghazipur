@@ -331,12 +331,7 @@ if(ids.length){var dn=document.createElement('nav');dn.className='ix-dots';dn.se
 /* Ask St. Mary's: a small helper that answers common questions */
 var S={tel:'+91 94504 82895 / 0548-2222612',mail:'stmaryconventschoolgzp@gmail.com',addr:"Tadvanva, Ghazipur, Uttar Pradesh 233001",yt:'https://youtube.com/@st.marysconventschoolghazi4649?si=TslvxI4Q3ZIZOz5B'};
 function stat(i,d){var b=$$('.hero-stat b')[i];return b?b.textContent.trim():d}
-var KB=[
-[/school code|scsdel|e-?care|parent app|mobile app/,"The school code for the e-Care Pro parent app is SCSDEL. With the app you can see attendance, assignments and photos, get instant notices, apply for leave and pay fees online.",'#handbook','Open Handbook'],
-[/sport|cricket|football|basketball|volleyball|tennis|athlet|playground|play ground/,"We have two big playgrounds and sports facilities for cricket, tennis, volleyball, table tennis, basketball and football, guided by professional trainers. See sports moments in the Gallery.",'#gallery','Open Gallery'],
-[/uniform|dress code/,"Students are expected to come to school every day in the school uniform, neatly dressed. For uniform details, please call the school office on "+S.tel+".",'#contact','Get in touch'],
-[/\bboard\b|icse|cisce|cbse|affiliat/,"St. Mary's is affiliated to ICSE, New Delhi (Classes IX and X, since January 2020). English is the medium of instruction and Hindi is taught from LKG.",'#handbook','Open Handbook'],
-[/hello|hi\b|hey|namaste/,'Hello! I can help with admissions, location, contact details and facilities. What would you like to know?'],
+var KB=[[/hello|hi\b|hey|namaste/,'Hello! I can help with admissions, location, contact details and facilities. What would you like to know?'],
 [/admission|apply|enrol|enroll|seat|join/,'Admissions information is in the Admissions section. For forms, dates and availability please call the school office on '+S.tel+'.','#admissions','Open Admissions'],
 [/where|address|location|map|reach|direction/,"We are at "+S.addr+". The Contact section has a map and a satellite view.",'#contact','Open map'],
 [/phone|call|number|contact|talk/,'You can call the school office on '+S.tel+' or email '+S.mail+'.','#contact','Get in touch'],
