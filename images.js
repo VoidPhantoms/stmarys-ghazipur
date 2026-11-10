@@ -308,7 +308,7 @@ G.forEach(function(g,i){
 
     var f=document.createElement('figure');
 
-    f.className='gi reveal'+
+    f.className='gi'+
         (i%5==0?' w2':'');
 
     f.tabIndex=0;
@@ -483,7 +483,7 @@ var io=window.IntersectionObserver&&
     );
 
 document.querySelectorAll(
-    '.nx .section-kicker,.nx .section-title,.nx .lead,.nx .pr,.nx .hub,.gi'
+    '.nx .section-kicker,.nx .section-title,.nx .lead,.nx .pr,.nx .hub'
 ).forEach(function(e){
 
     e.classList.add('reveal');
