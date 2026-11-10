@@ -326,3 +326,85 @@ html.gallery-viewer-open body {
     animation: none !important;
   }
 }
+/* GALLERY-ONLY CINEMATIC MOTION POLISH */
+
+#gg .gi {
+  isolation: isolate;
+  backface-visibility: hidden;
+  transition: border-color .45s ease, box-shadow .55s ease;
+}
+
+#gg .gi img {
+  transition: transform .9s cubic-bezier(.2,.75,.25,1),
+              filter .7s ease;
+  filter: saturate(.9) contrast(1.02);
+}
+
+#gg .gi:hover {
+  border-color: rgba(226,201,149,.72);
+  box-shadow: 0 28px 70px rgba(0,0,0,.34);
+}
+
+#gg .gi:hover img {
+  transform: translateZ(20px) scale(1.075);
+  filter: saturate(1.12) contrast(1.04);
+}
+
+#gg .gi figcaption small {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+#gg .gi figcaption b {
+  display: block;
+  line-height: 1.25;
+  letter-spacing: -.02em;
+}
+
+.gallery-filterbar {
+  align-items: center;
+  gap: 9px;
+}
+
+.gallery-filterbar button {
+  font: 600 11px/1.2 var(--sans);
+  letter-spacing: .045em;
+  transition: background .25s ease, color .25s ease,
+              border-color .25s ease, transform .25s ease;
+}
+
+.gallery-filterbar button span {
+  margin-left: 7px;
+  opacity: .72;
+  font-variant-numeric: tabular-nums;
+}
+
+.gallery-filterbar button[aria-pressed="true"] {
+  border-color: var(--gold);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #gg .gi:hover {
+    z-index: 2;
+  }
+}
+
+@media (max-width: 520px) {
+  #gg .gi {
+    border-radius: 13px;
+  }
+
+  #gg .gi figcaption b {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #gg .gi,
+  #gg .gi img,
+  .gallery-filterbar button {
+    transition: none !important;
+  }
+     }
