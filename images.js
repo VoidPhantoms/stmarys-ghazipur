@@ -495,3 +495,260 @@ document.querySelectorAll(
 });
 
 })();
+
+/* =========================================
+   CINEMATIC GALLERY MOTION
+   Append after the existing images.js code
+========================================= */
+
+(function () {
+  "use strict";
+
+  function startGalleryMotion() {
+    var gallery = document.getElementById("gg");
+    var viewer = document.getElementById("lb");
+
+    if (!gallery) return;
+
+    var cards = Array.from(gallery.querySelectorAll(".gi"));
+    var hasGSAP = !!(window.gsap && window.ScrollTrigger);
+    var reducedMotion = window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!cards.length) return;
+
+    /* Register GSAP ScrollTrigger */
+    if (hasGSAP) {
+      gsap.registerPlugin(ScrollTrigger);
+    }
+
+    /* LENIS SMOOTH SCROLL */
+    var lenis = null;
+
+    if (!reducedMotion && window.Lenis) {
+      try {
+        lenis = new Lenis({
+          duration: 1.15,
+          smoothWheel: true,
+          wheelMultiplier: 0.9,
+          touchMultiplier: 1.05
+        });
+
+        if (hasGSAP) {
+          lenis.on("scroll", ScrollTrigger.update);
+
+          gsap.ticker.add(function (time) {
+            lenis.raf(time * 1000);
+          });
+
+          gsap.ticker.lagSmoothing(0);
+        } else {
+          function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+          }
+          requestAnimationFrame(raf);
+        }
+
+      } catch (error) {
+        console.warn("Lenis could not start:", error);
+      }
+    }
+
+    /* STAGGERED SCROLL REVEALS */
+    if (hasGSAP && !reducedMotion) {
+      gsap.set(cards, {
+        autoAlpha: 0,
+        y: 65,
+        scale: 0.94,
+        rotateX: 7,
+        transformPerspective: 1200
+      });
+
+      ScrollTrigger.batch(cards, {
+        start: "top 88%",
+        once: true,
+        onEnter: function (elements) {
+          gsap.to(elements, {
+            autoAlpha: 1,
+            y: 0,
+            scale: 1,
+            rotateX: 0,
+            duration: 1.05,
+            stagger: 0.12,
+            ease: "power3.out",
+            overwrite: true
+          });
+        }
+      });
+    } else {
+      cards.forEach(function (card) {
+        card.style.opacity = "1";
+        card.style.visibility = "visible";
+      });
+    }
+
+    /* INTERACTIVE 3D CARD TILT */
+    var desktop = window.matchMedia &&
+      window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    if (desktop && hasGSAP && !reducedMotion) {
+      cards.forEach(function (card) {
+        var image = card.querySelector("img");
+        if (!image) return;
+
+        card.addEventListener("pointermove", function (event) {
+          var rect = card.getBoundingClientRect();
+
+          var x = (event.clientX - rect.left) / rect.width;
+          var y = (event.clientY - rect.top) / rect.height;
+
+          gsap.to(card, {
+            rotateY: (x - 0.5) * 14,
+            rotateX: (0.5 - y) * 12,
+            z: 15,
+            transformPerspective: 1100,
+            duration: 0.3,
+            ease: "power2.out",
+            overwrite: "auto"
+          });
+
+          gsap.to(image, {
+            x: (x - 0.5) * -14,
+            y: (y - 0.5) * -12,
+            scale: 1.12,
+            duration: 0.4,
+            ease: "power2.out",
+            overwrite: "auto"
+          });
+        });
+
+        card.addEventListener("pointerleave", function () {
+          gsap.to(card, {
+            rotateX: 0,
+            rotateY: 0,
+            z: 0,
+            duration: 0.65,
+            ease: "elastic.out(1, 0.55)",
+            overwrite: "auto"
+          });
+
+          gsap.to(image, {
+            x: 0,
+            y: 0,
+            scale: 1,
+            duration: 0.6,
+            ease: "power3.out",
+            overwrite: "auto"
+          });
+        });
+      });
+    }
+
+    /* CINEMATIC FULLSCREEN VIEWER */
+    if (viewer && hasGSAP && !reducedMotion) {
+      var figure = viewer.querySelector("figure");
+      var image = viewer.querySelector("img");
+
+      var observer = new MutationObserver(function () {
+        if (!viewer.hidden) {
+          document.documentElement.classList.add(
+            "gallery-viewer-open"
+          );
+
+          gsap.killTweensOf(viewer);
+
+          gsap.fromTo(viewer,
+            {
+              autoAlpha: 0,
+              filter: "blur(12px)"
+            },
+            {
+              autoAlpha: 1,
+              filter: "blur(0px)",
+              duration: 0.48,
+              ease: "power2.out"
+            }
+          );
+
+          if (figure) {
+            gsap.fromTo(figure,
+              {
+                y: 45,
+                scale: 0.88,
+                rotateX: 7,
+                autoAlpha: 0,
+                transformPerspective: 1200
+              },
+              {
+                y: 0,
+                scale: 1,
+                rotateX: 0,
+                autoAlpha: 1,
+                duration: 0.78,
+                ease: "power3.out"
+              }
+            );
+          }
+        } else {
+          document.documentElement.classList.remove(
+            "gallery-viewer-open"
+          );
+        }
+      });
+
+      observer.observe(viewer, {
+        attributes: true,
+        attributeFilter: ["hidden"]
+      });
+
+      /* Animate slideshow image changes */
+      if (image) {
+        var imageObserver = new MutationObserver(function () {
+          gsap.fromTo(image,
+            {
+              autoAlpha: 0,
+              scale: 1.045,
+              y: 15
+            },
+            {
+              autoAlpha: 1,
+              scale: 1,
+              y: 0,
+              duration: 0.6,
+              ease: "power3.out"
+            }
+          );
+        });
+
+        imageObserver.observe(image, {
+          attributes: true,
+          attributeFilter: ["src"]
+        });
+      }
+    }
+
+    /* Refresh layout after images load */
+    if (hasGSAP) {
+      window.addEventListener("load", function () {
+        ScrollTrigger.refresh();
+      });
+
+      window.addEventListener("resize", function () {
+        ScrollTrigger.refresh();
+      });
+    }
+
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      startGalleryMotion,
+      { once: true }
+    );
+  } else {
+    startGalleryMotion();
+  }
+
+})();
