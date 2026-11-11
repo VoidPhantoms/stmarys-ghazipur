@@ -1,544 +1,754 @@
-/* St. Mary's Convent School — gallery-only controller
-   Six vertically stacked album sections; each section scrolls horizontally.
-   Existing non-gallery page behavior is preserved below. */
+window.IM=["img/p00.webp", "img/p01.webp", "img/p02.webp", "img/p03.webp", "img/p04.webp", "img/p05.webp", "img/p06.webp", "img/p07.webp", "img/p08.webp", "img/p09.webp", "img/p10.webp", "img/p11.webp", "img/p12.webp", "img/p13.webp", "img/p14.webp"];
+
+(function(){
+var G=[
+[0,'Proud to be an Indian','Celebrations'],
+[1,'Young cadets on stage','Celebrations'],
+[4,'Voices of the nation','Celebrations'],
+[2,'Human pyramid in the courtyard','Sports & fitness'],
+[3,'Pyramid on the green','Sports & fitness'],
+[5,'Morning assembly prayer','Daily life'],
+[6,'Investiture ceremony','Leadership'],
+[7,'Champions with medals & certificates','Sports'],
+[8,'Sports meet inauguration','Sports'],
+[9,'Art & craft: Labour Day cards','Classroom'],
+[10,'Save Mother Earth','Classroom'],
+[11,'Clean environment drawings','Classroom'],
+[12,'Merry-go-round fun','Kids’ play area'],
+[13,'Kids’ play area','Kids’ play area']
+];
+
+document.querySelectorAll('img[data-im]').forEach(function(i){
+    i.src=IM[+i.dataset.im];
+});
+
+var gg=document.getElementById('gg'),
+    lb=document.getElementById('lb');
+
+if(!gg||!lb)return;
+
+var li=lb.querySelector('img'),
+    lc=lb.querySelector('figcaption'),
+    ci=0,
+    tx=0;
+
+/* Gallery-only visual styling */
+var css=document.createElement('style');
+
+css.textContent=`
+#gg{
+display:grid!important;
+grid-template-columns:repeat(3,minmax(0,1fr))!important;
+gap:clamp(12px,2vw,24px)!important;
+align-items:stretch!important
+}
+
+#gg .gi{
+position:relative!important;
+display:block!important;
+grid-column:span 1!important;
+min-width:0!important;
+margin:0!important;
+padding:0!important;
+overflow:hidden!important;
+isolation:isolate!important;
+aspect-ratio:1.12!important;
+border:1px solid rgba(190,158,99,.22)!important;
+border-radius:18px!important;
+background:#111!important;
+box-shadow:0 10px 30px rgba(0,0,0,.12)!important;
+cursor:pointer!important;
+transition:transform .55s cubic-bezier(.2,.75,.25,1),
+box-shadow .55s,border-color .4s!important
+}
+
+#gg .gi:nth-child(5n+1),
+#gg .gi:nth-child(5n+4){
+aspect-ratio:1.35!important
+}
+
+#gg .gi.w2{
+grid-column:span 2!important;
+aspect-ratio:2.12!important
+}
+
+#gg .gi[hidden]{
+display:none!important
+}
+
+#gg .gi img{
+display:block!important;
+width:100%!important;
+height:100%!important;
+object-fit:cover!important;
+transition:transform .9s cubic-bezier(.2,.7,.2,1),
+filter .7s!important;
+filter:saturate(.88)!important
+}
+
+#gg .gi:after{
+content:"";
+position:absolute;
+inset:25% 0 0;
+z-index:1;
+pointer-events:none;
+background:linear-gradient(
+180deg,
+transparent 0%,
+rgba(7,12,10,.12) 28%,
+rgba(7,12,10,.86) 100%
+)
+}
+
+#gg .gi figcaption{
+position:absolute!important;
+z-index:2!important;
+left:0!important;
+right:0!important;
+bottom:0!important;
+display:flex!important;
+flex-direction:column!important;
+gap:6px!important;
+padding:clamp(14px,2.2vw,24px)!important;
+color:#fff!important;
+text-align:left!important;
+background:none!important
+}
+
+#gg .gi figcaption small{
+font-size:10px!important;
+letter-spacing:.18em!important;
+text-transform:uppercase!important;
+color:#e4c98f!important;
+font-weight:700!important
+}
+
+#gg .gi figcaption b{
+font-size:clamp(14px,1.5vw,20px)!important;
+line-height:1.25!important;
+font-weight:600!important;
+letter-spacing:-.02em!important;
+color:#fff!important
+}
+
+#gg .gi:hover{
+transform:translateY(-6px)!important;
+border-color:rgba(218,185,121,.75)!important;
+box-shadow:0 22px 50px rgba(0,0,0,.22)!important
+}
+
+#gg .gi:hover img{
+transform:scale(1.075)!important;
+filter:saturate(1.08)!important
+}
+
+#gg .gi:focus-visible{
+outline:2px solid #d7b879!important;
+outline-offset:4px!important
+}
+
+.gallery-filterbar{
+display:flex;
+flex-wrap:wrap;
+align-items:center;
+gap:9px;
+margin:0 0 clamp(18px,3vw,30px);
+padding:0
+}
+
+.gallery-filterbar button{
+appearance:none;
+border:1px solid rgba(177,151,103,.3);
+border-radius:999px;
+padding:9px 15px;
+background:rgba(255,255,255,.055);
+color:inherit;
+font:600 11px/1.2 inherit;
+letter-spacing:.055em;
+cursor:pointer;
+transition:background .25s,color .25s,
+border-color .25s,transform .25s
+}
+
+.gallery-filterbar button:hover{
+transform:translateY(-2px);
+border-color:#b99b63
+}
+
+.gallery-filterbar button[aria-pressed="true"]{
+background:#b99b63;
+border-color:#b99b63;
+color:#171712
+}
+
+.gallery-filterbar button span{
+margin-left:7px;
+opacity:.7;
+font-variant-numeric:tabular-nums
+}
+
+@media(max-width:760px){
+#gg{
+grid-template-columns:repeat(2,minmax(0,1fr))!important;
+gap:12px!important
+}
+
+#gg .gi.w2{
+grid-column:span 2!important;
+aspect-ratio:1.8!important
+}
+
+#gg .gi{
+border-radius:14px!important
+}
+}
+
+@media(max-width:420px){
+#gg .gi{
+aspect-ratio:.92!important
+}
+
+#gg .gi.w2{
+aspect-ratio:1.45!important
+}
+
+#gg .gi figcaption{
+padding:12px!important
+}
+
+#gg .gi figcaption b{
+font-size:13px!important
+}
+}
+
+@media(prefers-reduced-motion:reduce){
+#gg .gi,
+#gg .gi img,
+.gallery-filterbar button{
+transition:none!important
+}
+}
+`;
+
+document.head.appendChild(css);
+
+/* Gallery category filters */
+var categories=[
+'All',
+'Celebrations',
+'Sports & fitness',
+'Daily life',
+'Leadership',
+'Sports',
+'Classroom',
+'Kids’ play area'
+];
+
+var filter=document.createElement('nav');
+
+filter.className='gallery-filterbar';
+filter.setAttribute('aria-label','Filter gallery by category');
+filter.setAttribute('data-gallery-controls','');
+
+categories.forEach(function(cat){
+
+    var count=cat==='All'
+        ?G.length
+        :G.filter(function(g){
+            return g[2]===cat;
+        }).length;
+
+    if(!count)return;
+
+    var b=document.createElement('button');
+
+    b.type='button';
+    b.dataset.category=cat;
+
+    b.setAttribute(
+        'aria-pressed',
+        cat==='All'?'true':'false'
+    );
+
+    b.appendChild(document.createTextNode(cat));
+
+    var s=document.createElement('span');
+    s.textContent=String(count);
+
+    b.appendChild(s);
+    filter.appendChild(b);
+});
+
+gg.parentNode.insertBefore(filter,gg);
+
+/* Fullscreen image viewer */
+function sh(i){
+    ci=(i+G.length)%G.length;
+
+    li.src=IM[G[ci][0]];
+    li.alt=G[ci][1];
+
+    lc.textContent=
+        G[ci][1]+' · '+G[ci][2];
+}
+
+function op(i){
+    sh(i);
+    lb.hidden=false;
+    document.documentElement.style.overflow='hidden';
+}
+
+function cl(){
+    lb.hidden=true;
+    document.documentElement.style.overflow='';
+}
+
+/* Generate gallery cards */
+G.forEach(function(g,i){
+
+    var f=document.createElement('figure');
+
+    f.className='gi'+
+        (i%5==0?' w2':'');
+
+    f.tabIndex=0;
+
+    f.setAttribute('role','button');
+
+    f.setAttribute(
+        'aria-label',
+        'Open photo: '+g[1]
+    );
+
+    f.innerHTML=
+        '<img alt="'+g[1]+'" loading="lazy" decoding="async">'+
+        '<figcaption>'+
+        '<small>'+g[2]+'</small>'+
+        '<b>'+g[1]+'</b>'+
+        '</figcaption>';
+
+    f.firstChild.src=IM[g[0]];
+
+    f.onclick=function(){
+        op(i);
+    };
+
+    f.onkeydown=function(e){
+        if(e.key==='Enter'||e.key===' '){
+            e.preventDefault();
+            op(i);
+        }
+    };
+
+    gg.appendChild(f);
+});
+
+/* Filter functionality */
+filter.addEventListener('click',function(e){
+
+    var b=e.target.closest(
+        'button[data-category]'
+    );
+
+    if(!b)return;
+
+    var cat=b.dataset.category;
+
+    filter.querySelectorAll('button').forEach(
+        function(x){
+            x.setAttribute(
+                'aria-pressed',
+                x===b?'true':'false'
+            );
+        }
+    );
+
+    gg.querySelectorAll('.gi').forEach(
+        function(card,i){
+            card.hidden=
+                cat!=='All'&&G[i][2]!==cat;
+        }
+    );
+});
+
+/* Viewer controls */
+lb.querySelector('.lbx').onclick=cl;
+
+lb.querySelector('.lbp').onclick=function(){
+    sh(ci-1);
+};
+
+lb.querySelector('.lbn').onclick=function(){
+    sh(ci+1);
+};
+
+lb.onclick=function(e){
+    if(e.target===lb)cl();
+};
+
+/* Touch swipe */
+lb.addEventListener(
+    'touchstart',
+    function(e){
+        tx=e.touches[0].clientX;
+    },
+    {passive:true}
+);
+
+lb.addEventListener(
+    'touchend',
+    function(e){
+        var d=e.changedTouches[0].clientX-tx;
+
+        if(Math.abs(d)>50){
+            sh(ci+(d<0?1:-1));
+        }
+    },
+    {passive:true}
+);
+
+/* Keyboard navigation */
+addEventListener('keydown',function(e){
+
+    if(lb.hidden)return;
+
+    if(e.key==='Escape')cl();
+    if(e.key==='ArrowLeft')sh(ci-1);
+    if(e.key==='ArrowRight')sh(ci+1);
+
+});
+
+/* Preserve existing school hub functionality */
+var hp=[].slice.call(
+    document.querySelectorAll('.hp')
+);
+
+var hb=[].slice.call(
+    document.querySelectorAll('[data-h]')
+);
+
+function oh(n){
+
+    hp.forEach(function(p){
+        p.classList.toggle(
+            'on',
+            p.id==='hub-'+n
+        );
+    });
+
+    hb.forEach(function(b){
+
+        var o=b.dataset.h===n;
+
+        b.classList.toggle('on',o);
+
+        b.setAttribute(
+            'aria-selected',
+            o
+        );
+    });
+}
+
+hb.forEach(function(b){
+    b.onclick=function(){
+        oh(b.dataset.h);
+    };
+});
+
+document.querySelectorAll('[data-hub]').forEach(
+    function(a){
+        a.addEventListener('click',function(){
+            oh(a.dataset.hub);
+        });
+    }
+);
+
+/* Preserve existing scroll reveal functionality */
+var io=window.IntersectionObserver&&
+    new IntersectionObserver(
+        function(es){
+
+            es.forEach(function(e){
+
+                if(e.isIntersecting){
+
+                    e.target.classList.add('visible');
+
+                    io.unobserve(e.target);
+                }
+            });
+
+        },
+        {threshold:.08}
+    );
+
+document.querySelectorAll(
+    '.nx .section-kicker,.nx .section-title,.nx .lead,.nx .pr,.nx .hub'
+).forEach(function(e){
+
+    e.classList.add('reveal');
+
+    io
+        ?io.observe(e)
+        :e.classList.add('visible');
+
+});
+
+})();
+
+/* =========================================
+   CINEMATIC GALLERY MOTION
+   Append after the existing images.js code
+========================================= */
+
 (function () {
   "use strict";
 
-  window.IM = [
-    "img/p00.webp", "img/p01.webp", "img/p02.webp",
-    "img/p03.webp", "img/p04.webp", "img/p05.webp",
-    "img/p06.webp", "img/p07.webp", "img/p08.webp",
-    "img/p09.webp", "img/p10.webp", "img/p11.webp",
-    "img/p12.webp", "img/p13.webp", "img/p14.webp"
-  ];
+  function startGalleryMotion() {
+    var gallery = document.getElementById("gg");
+    var viewer = document.getElementById("lb");
 
-  document.querySelectorAll("img[data-im]").forEach(function (img) {
-    var index = Number(img.dataset.im);
-    if (window.IM[index]) img.src = window.IM[index];
-  });
+    if (!gallery) return;
 
-  var galleryRoot = document.getElementById("gg");
-  var lightbox = document.getElementById("lb");
-  var reducedMotion = window.matchMedia &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var cards = Array.from(gallery.querySelectorAll(".gi"));
+    var hasGSAP = !!(window.gsap && window.ScrollTrigger);
+    var reducedMotion = window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  var albums = [
-    {
-      title: "Campaign on Gandhi Jayanti 2 October 2026",
-      short: "Gandhi Jayanti 2026",
-      slug: "01-gandhi-jayanti-2026",
-      count: 17
-    },
-    {
-      title: "Investiture Ceremony",
-      short: "Investiture Ceremony",
-      slug: "02-investiture-ceremony",
-      count: 52
-    },
-    {
-      title: "ICSE Result 2023–2024",
-      short: "ICSE Result 2023–2024",
-      slug: "03-icse-result-2023-2024",
-      count: 13
-    },
-    {
-      title: "Labour's Day",
-      short: "Labour's Day",
-      slug: "04-labours-day",
-      count: 12
-    },
-    {
-      title: "Games 2023",
-      short: "Games 2023",
-      slug: "05-games-2023",
-      count: 8
-    },
-    {
-      title: "Annual Function 2022",
-      short: "Annual Function 2022",
-      slug: "06-annual-function-2022",
-      count: 152
+    if (!cards.length) return;
+
+    /* Register GSAP ScrollTrigger */
+    if (hasGSAP) {
+      gsap.registerPlugin(ScrollTrigger);
     }
-  ];
 
-  var photos = [];
+    /* LENIS SMOOTH SCROLL */
+    var lenis = null;
 
-  function escapeHTML(value) {
-    return String(value).replace(/[&<>"']/g, function (character) {
-      return {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;"
-      }[character];
-    });
-  }
-
-  function buildGallery() {
-    if (!galleryRoot) return;
-
-    var markup = albums.map(function (album, albumIndex) {
-      var cards = "";
-
-      for (var number = 1; number <= album.count; number += 1) {
-        var source = "img/albums/" + album.slug + "/p" +
-          String(number).padStart(3, "0") + ".webp";
-
-        var photoIndex = photos.push({
-          src: source,
-          album: album.title,
-          albumIndex: albumIndex,
-          number: number,
-          total: album.count
-        }) - 1;
-
-        cards +=
-          '<li class="gallery-card gi" data-photo-index="' + photoIndex + '">' +
-            '<button class="gallery-card-button" type="button" aria-label="Open ' +
-              escapeHTML(album.short) + ', photo ' + number + '">' +
-              '<img src="' + escapeHTML(source) + '" alt="' +
-                escapeHTML(album.short + " — photo " + number) +
-                '" loading="lazy" decoding="async" draggable="false">' +
-              '<span class="gallery-card-index">' +
-                String(number).padStart(2, "0") + "</span>" +
-            "</button>" +
-          "</li>";
-      }
-
-      var safeTitle = escapeHTML(album.title);
-      var safeShort = escapeHTML(album.short);
-
-      return (
-        '<section class="gallery-album" aria-labelledby="gallery-album-title-' +
-          albumIndex + '">' +
-          '<div class="gallery-album-heading">' +
-            '<div class="gallery-album-copy">' +
-              '<span class="gallery-album-kicker">ALBUM 0' +
-                (albumIndex + 1) + " / 06</span>" +
-              '<h3 id="gallery-album-title-' + albumIndex + '">' +
-                safeTitle + "</h3>" +
-              '<p>' + album.count + ' photographs <span aria-hidden="true">·</span> ' +
-                "Swipe or drag to explore</p>" +
-            "</div>" +
-            '<div class="gallery-album-tools" aria-label="' +
-              safeShort + ' controls">' +
-              '<button class="gallery-arrow gallery-prev" type="button" ' +
-                'aria-label="Scroll ' + safeShort + ' left" disabled>' +
-                '<span aria-hidden="true">←</span></button>' +
-              '<div class="gallery-progress" role="img" aria-label="' +
-                safeShort + ' scroll progress">' +
-                '<svg viewBox="0 0 44 44" aria-hidden="true">' +
-                  '<circle class="gallery-progress-bg" cx="22" cy="22" r="17" ' +
-                    'pathLength="1"></circle>' +
-                  '<circle class="gallery-progress-value" cx="22" cy="22" r="17" ' +
-                    'pathLength="1"></circle>' +
-                "</svg>" +
-                '<span class="gallery-progress-label">0%</span>' +
-              "</div>" +
-              '<button class="gallery-arrow gallery-next" type="button" ' +
-                'aria-label="Scroll ' + safeShort + ' right">' +
-                '<span aria-hidden="true">→</span></button>' +
-            "</div>" +
-          "</div>" +
-          '<div class="gallery-track-shell">' +
-            '<ul class="gallery-track" tabindex="0" aria-label="' +
-              safeShort + ' photos">' + cards + "</ul>" +
-          "</div>" +
-        "</section>"
-      );
-    }).join("");
-
-    galleryRoot.className = "gallery-albums";
-    galleryRoot.innerHTML = markup;
-    galleryRoot.setAttribute("aria-label", "Six school photo albums");
-  }
-
-  function setupAlbumTracks() {
-    if (!galleryRoot) return;
-
-    galleryRoot.querySelectorAll(".gallery-album").forEach(function (section) {
-      var track = section.querySelector(".gallery-track");
-      var progressRing = section.querySelector(".gallery-progress-value");
-      var progressLabel = section.querySelector(".gallery-progress-label");
-      var previous = section.querySelector(".gallery-prev");
-      var next = section.querySelector(".gallery-next");
-
-      if (!track || !progressRing || !progressLabel || !previous || !next) {
-        return;
-      }
-
-      var framePending = false;
-      var dragPointer = null;
-      var dragStartX = 0;
-      var dragStartScroll = 0;
-      var dragMoved = false;
-      var suppressClick = false;
-
-      function updateProgress() {
-        framePending = false;
-
-        var maximum = Math.max(0, track.scrollWidth - track.clientWidth);
-        var fraction = maximum > 0 ? track.scrollLeft / maximum : 0;
-        fraction = Math.max(0, Math.min(1, fraction));
-
-        progressRing.style.strokeDasharray = "1";
-        progressRing.style.strokeDashoffset = String(1 - fraction);
-        progressLabel.textContent = Math.round(fraction * 100) + "%";
-
-        previous.disabled = track.scrollLeft <= 1;
-        next.disabled = track.scrollLeft >= maximum - 1 || maximum <= 1;
-
-        if (maximum <= 1) {
-          track.style.maskImage = "none";
-          track.style.webkitMaskImage = "none";
-        } else if (fraction <= 0.002) {
-          var startMask =
-            "linear-gradient(90deg, #000 0%, #000 84%, transparent 100%)";
-          track.style.maskImage = startMask;
-          track.style.webkitMaskImage = startMask;
-        } else if (fraction >= 0.998) {
-          var endMask =
-            "linear-gradient(90deg, transparent 0%, #000 16%, #000 100%)";
-          track.style.maskImage = endMask;
-          track.style.webkitMaskImage = endMask;
-        } else {
-          var middleMask =
-            "linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%)";
-          track.style.maskImage = middleMask;
-          track.style.webkitMaskImage = middleMask;
-        }
-      }
-
-      function scheduleProgress() {
-        if (framePending) return;
-        framePending = true;
-
-        if (window.requestAnimationFrame) {
-          window.requestAnimationFrame(updateProgress);
-        } else {
-          updateProgress();
-        }
-      }
-
-      function moveByPage(direction) {
-        track.scrollBy({
-          left: direction * track.clientWidth * 0.82,
-          behavior: reducedMotion ? "auto" : "smooth"
+    if (!reducedMotion && window.Lenis) {
+      try {
+        lenis = new Lenis({
+          duration: 1.15,
+          smoothWheel: true,
+          wheelMultiplier: 0.9,
+          touchMultiplier: 1.05
         });
+
+        if (hasGSAP) {
+          lenis.on("scroll", ScrollTrigger.update);
+
+          gsap.ticker.add(function (time) {
+            lenis.raf(time * 1000);
+          });
+
+          gsap.ticker.lagSmoothing(0);
+        } else {
+          function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+          }
+          requestAnimationFrame(raf);
+        }
+
+      } catch (error) {
+        console.warn("Lenis could not start:", error);
       }
+    }
 
-      track.addEventListener("scroll", scheduleProgress, {
-        passive: true
+    /* STAGGERED SCROLL REVEALS */
+    if (hasGSAP && !reducedMotion) {
+      gsap.set(cards, {
+        autoAlpha: 0,
+        y: 65,
+        scale: 0.94,
+        rotateX: 7,
+        transformPerspective: 1200
       });
 
-      previous.addEventListener("click", function () {
-        moveByPage(-1);
-      });
-
-      next.addEventListener("click", function () {
-        moveByPage(1);
-      });
-
-      track.addEventListener("keydown", function (event) {
-        if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
-          event.preventDefault();
-
-          track.scrollBy({
-            left: event.key === "ArrowRight" ? 260 : -260,
-            behavior: reducedMotion ? "auto" : "smooth"
+      ScrollTrigger.batch(cards, {
+        start: "top 88%",
+        once: true,
+        onEnter: function (elements) {
+          gsap.to(elements, {
+            autoAlpha: 1,
+            y: 0,
+            scale: 1,
+            rotateX: 0,
+            duration: 1.05,
+            stagger: 0.12,
+            ease: "power3.out",
+            overwrite: true
           });
         }
       });
-
-      /* Desktop mouse-drag; touch devices keep native swipe scrolling. */
-      track.addEventListener("pointerdown", function (event) {
-        if (event.pointerType !== "mouse" || event.button !== 0) return;
-
-        dragPointer = event.pointerId;
-        dragStartX = event.clientX;
-        dragStartScroll = track.scrollLeft;
-        dragMoved = false;
-
-        track.classList.add("is-pointer-dragging");
+    } else {
+      cards.forEach(function (card) {
+        card.style.opacity = "1";
+        card.style.visibility = "visible";
       });
+    }
 
-      track.addEventListener("pointermove", function (event) {
-        if (dragPointer !== event.pointerId) return;
+    /* INTERACTIVE 3D CARD TILT */
+    var desktop = window.matchMedia &&
+      window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
-        var distance = event.clientX - dragStartX;
+    if (desktop && hasGSAP && !reducedMotion) {
+      cards.forEach(function (card) {
+        var image = card.querySelector("img");
+        if (!image) return;
 
-        if (Math.abs(distance) > 5) dragMoved = true;
+        card.addEventListener("pointermove", function (event) {
+          var rect = card.getBoundingClientRect();
 
-        if (dragMoved) {
-          track.scrollLeft = dragStartScroll - distance;
-          event.preventDefault();
+          var x = (event.clientX - rect.left) / rect.width;
+          var y = (event.clientY - rect.top) / rect.height;
+
+          gsap.to(card, {
+            rotateY: (x - 0.5) * 14,
+            rotateX: (0.5 - y) * 12,
+            z: 15,
+            transformPerspective: 1100,
+            duration: 0.3,
+            ease: "power2.out",
+            overwrite: "auto"
+          });
+
+          gsap.to(image, {
+            x: (x - 0.5) * -14,
+            y: (y - 0.5) * -12,
+            scale: 1.12,
+            duration: 0.4,
+            ease: "power2.out",
+            overwrite: "auto"
+          });
+        });
+
+        card.addEventListener("pointerleave", function () {
+          gsap.to(card, {
+            rotateX: 0,
+            rotateY: 0,
+            z: 0,
+            duration: 0.65,
+            ease: "elastic.out(1, 0.55)",
+            overwrite: "auto"
+          });
+
+          gsap.to(image, {
+            x: 0,
+            y: 0,
+            scale: 1,
+            duration: 0.6,
+            ease: "power3.out",
+            overwrite: "auto"
+          });
+        });
+      });
+    }
+
+    /* CINEMATIC FULLSCREEN VIEWER */
+    if (viewer && hasGSAP && !reducedMotion) {
+      var figure = viewer.querySelector("figure");
+      var image = viewer.querySelector("img");
+
+      var observer = new MutationObserver(function () {
+        if (!viewer.hidden) {
+          document.documentElement.classList.add(
+            "gallery-viewer-open"
+          );
+
+          gsap.killTweensOf(viewer);
+
+          gsap.fromTo(viewer,
+            {
+              autoAlpha: 0,
+              filter: "blur(12px)"
+            },
+            {
+              autoAlpha: 1,
+              filter: "blur(0px)",
+              duration: 0.48,
+              ease: "power2.out"
+            }
+          );
+
+          if (figure) {
+            gsap.fromTo(figure,
+              {
+                y: 45,
+                scale: 0.88,
+                rotateX: 7,
+                autoAlpha: 0,
+                transformPerspective: 1200
+              },
+              {
+                y: 0,
+                scale: 1,
+                rotateX: 0,
+                autoAlpha: 1,
+                duration: 0.78,
+                ease: "power3.out"
+              }
+            );
+          }
+        } else {
+          document.documentElement.classList.remove(
+            "gallery-viewer-open"
+          );
         }
       });
 
-      function endDrag(event) {
-        if (dragPointer !== event.pointerId) return;
+      observer.observe(viewer, {
+        attributes: true,
+        attributeFilter: ["hidden"]
+      });
 
-        dragPointer = null;
-        track.classList.remove("is-pointer-dragging");
+      /* Animate slideshow image changes */
+      if (image) {
+        var imageObserver = new MutationObserver(function () {
+          gsap.fromTo(image,
+            {
+              autoAlpha: 0,
+              scale: 1.045,
+              y: 15
+            },
+            {
+              autoAlpha: 1,
+              scale: 1,
+              y: 0,
+              duration: 0.6,
+              ease: "power3.out"
+            }
+          );
+        });
 
-        if (dragMoved) {
-          suppressClick = true;
-
-          window.setTimeout(function () {
-            suppressClick = false;
-          }, 80);
-        }
-
-        dragMoved = false;
-      }
-
-      track.addEventListener("pointerup", endDrag);
-      track.addEventListener("pointercancel", endDrag);
-      track.addEventListener("pointerleave", endDrag);
-
-      track.addEventListener("click", function (event) {
-        if (!suppressClick) return;
-
-        event.preventDefault();
-        event.stopPropagation();
-      }, true);
-
-      if ("ResizeObserver" in window) {
-        var resizeObserver = new ResizeObserver(scheduleProgress);
-        resizeObserver.observe(track);
-      } else {
-        window.addEventListener("resize", scheduleProgress, {
-          passive: true
+        imageObserver.observe(image, {
+          attributes: true,
+          attributeFilter: ["src"]
         });
       }
-
-      scheduleProgress();
-    });
-  }
-
-  var activePhoto = 0;
-  var previousOverflow = "";
-  var previousBodyOverflow = "";
-  var lastFocusedElement = null;
-  var touchStartX = 0;
-
-  function showPhoto(index) {
-    if (!photos.length || !lightbox) return;
-
-    activePhoto = (index + photos.length) % photos.length;
-
-    var photo = photos[activePhoto];
-    var image = lightbox.querySelector("img");
-    var caption = lightbox.querySelector("figcaption");
-
-    if (!image || !caption) return;
-
-    image.src = photo.src;
-    image.alt = photo.album + " — photo " + photo.number;
-
-    caption.textContent =
-      photo.album + " · Photo " + photo.number + " of " + photo.total;
-  }
-
-  function openPhoto(index, trigger) {
-    if (!lightbox) return;
-
-    lastFocusedElement = trigger || document.activeElement;
-
-    previousOverflow = document.documentElement.style.overflow;
-    previousBodyOverflow = document.body.style.overflow;
-
-    showPhoto(index);
-
-    lightbox.hidden = false;
-    lightbox.setAttribute("aria-modal", "true");
-
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-
-    var closeButton = lightbox.querySelector(".lbx");
-    if (closeButton) closeButton.focus();
-  }
-
-  function closePhoto() {
-    if (!lightbox || lightbox.hidden) return;
-
-    lightbox.hidden = true;
-
-    document.documentElement.style.overflow = previousOverflow;
-    document.body.style.overflow = previousBodyOverflow;
-
-    if (lastFocusedElement &&
-        typeof lastFocusedElement.focus === "function") {
-      lastFocusedElement.focus();
-    }
-  }
-
-  if (galleryRoot) {
-    galleryRoot.addEventListener("click", function (event) {
-      var button = event.target.closest(".gallery-card-button");
-      if (!button) return;
-
-      var card = button.closest("[data-photo-index]");
-      if (!card) return;
-
-      openPhoto(Number(card.dataset.photoIndex), button);
-    });
-  }
-
-  if (lightbox) {
-    var closeButton = lightbox.querySelector(".lbx");
-    var previousButton = lightbox.querySelector(".lbp");
-    var nextButton = lightbox.querySelector(".lbn");
-
-    if (closeButton) {
-      closeButton.addEventListener("click", closePhoto);
     }
 
-    if (previousButton) {
-      previousButton.addEventListener("click", function () {
-        showPhoto(activePhoto - 1);
+    /* Refresh layout after images load */
+    if (hasGSAP) {
+      window.addEventListener("load", function () {
+        ScrollTrigger.refresh();
+      });
+
+      window.addEventListener("resize", function () {
+        ScrollTrigger.refresh();
       });
     }
 
-    if (nextButton) {
-      nextButton.addEventListener("click", function () {
-        showPhoto(activePhoto + 1);
-      });
-    }
-
-    lightbox.addEventListener("click", function (event) {
-      if (event.target === lightbox) closePhoto();
-    });
-
-    lightbox.addEventListener("touchstart", function (event) {
-      touchStartX = event.touches[0].clientX;
-    }, { passive: true });
-
-    lightbox.addEventListener("touchend", function (event) {
-      var distance = event.changedTouches[0].clientX - touchStartX;
-
-      if (Math.abs(distance) > 48) {
-        showPhoto(activePhoto + (distance < 0 ? 1 : -1));
-      }
-    }, { passive: true });
-
-    document.addEventListener("keydown", function (event) {
-      if (lightbox.hidden) return;
-
-      if (event.key === "Escape") closePhoto();
-      if (event.key === "ArrowLeft") showPhoto(activePhoto - 1);
-      if (event.key === "ArrowRight") showPhoto(activePhoto + 1);
-    });
   }
 
-  buildGallery();
-  setupAlbumTracks();
-
-  /* Gallery-only scroll reveals. */
-  var albumSections = galleryRoot
-    ? Array.prototype.slice.call(
-        galleryRoot.querySelectorAll(".gallery-album")
-      )
-    : [];
-
-  if (!reducedMotion && window.gsap && window.ScrollTrigger) {
-    window.gsap.registerPlugin(window.ScrollTrigger);
-
-    albumSections.forEach(function (section, index) {
-      window.gsap.fromTo(
-        section,
-        { autoAlpha: 0, y: 28 },
-        {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.72,
-          delay: Math.min(index * 0.025, 0.12),
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: section,
-            start: "top 90%",
-            once: true
-          }
-        }
-      );
-    });
-  } else if (!reducedMotion && "IntersectionObserver" in window) {
-    var revealObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-inview");
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.08 });
-
-    albumSections.forEach(function (section) {
-      revealObserver.observe(section);
-    });
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      startGalleryMotion,
+      { once: true }
+    );
   } else {
-    albumSections.forEach(function (section) {
-      section.classList.add("is-inview");
-    });
+    startGalleryMotion();
   }
 
-  /* Preserve the existing school handbook tab interactions. */
-  var handbookPanels = Array.prototype.slice.call(
-    document.querySelectorAll(".hp")
-  );
-
-  var handbookButtons = Array.prototype.slice.call(
-    document.querySelectorAll("[data-h]")
-  );
-
-  function openHandbookTab(name) {
-    handbookPanels.forEach(function (panel) {
-      panel.classList.toggle("on", panel.id === "hub-" + name);
-    });
-
-    handbookButtons.forEach(function (button) {
-      var selected = button.dataset.h === name;
-
-      button.classList.toggle("on", selected);
-      button.setAttribute("aria-selected", selected ? "true" : "false");
-    });
-  }
-
-  handbookButtons.forEach(function (button) {
-    button.addEventListener("click", function () {
-      openHandbookTab(button.dataset.h);
-    });
-  });
-
-  document.querySelectorAll("[data-hub]").forEach(function (element) {
-    element.addEventListener("click", function () {
-      openHandbookTab(element.dataset.hub);
-    });
-  });
-
-  /* Preserve the existing content reveal behavior outside the gallery. */
-  var revealTargets = document.querySelectorAll(
-    ".nx .section-kicker, .nx .section-title, .nx .lead, .nx .pr, .nx .hub"
-  );
-
-  if ("IntersectionObserver" in window) {
-    var contentObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-          contentObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.08 });
-
-    revealTargets.forEach(function (element) {
-      element.classList.add("reveal");
-      contentObserver.observe(element);
-    });
-  } else {
-    revealTargets.forEach(function (element) {
-      element.classList.add("reveal", "visible");
-    });
-  }
 })();
