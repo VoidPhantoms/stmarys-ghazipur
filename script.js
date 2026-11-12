@@ -328,157 +328,33 @@ var ids=[];$$('.nav a[href^="#"],header a[href^="#"]').forEach(function(a){var i
 if(ids.length){var dn=document.createElement('nav');dn.className='ix-dots';dn.setAttribute('aria-label','Sections');ids.unshift('home');ids=ids.filter(function(id){return document.getElementById(id)});
   ids.forEach(function(id){var a=document.createElement('a');a.href='#'+id;a.setAttribute('aria-label',id);a.innerHTML='<span>'+id.replace(/-/g,' ')+'</span>';dn.appendChild(a)});document.body.appendChild(dn);
   if('IntersectionObserver' in window){var so=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)$$('a',dn).forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id)})})},{rootMargin:'-45% 0px -50% 0px'});ids.forEach(function(id){so.observe(document.getElementById(id))})}}
-
-/* Ask St. Mary's: Gemini-powered school assistant */
-var S={
- tel:'+91 94504 82895 / 0548-2222612',
- mail:'stmaryconventschoolgzp@gmail.com',
- addr:'Tadvanva, Ghazipur, Uttar Pradesh 233001'
-};
-
-var AI_API_URL='https://ask-st-marys-api.camelgoga451.workers.dev';
-var chatHistory=[];
-var chatBusy=false;
-
-var fab=document.createElement('button');
-fab.className='ix-fab';
-fab.type='button';
-fab.setAttribute('aria-label',"Ask St. Mary's");
-fab.setAttribute('aria-expanded','false');
-fab.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>';
-
-var pn=document.createElement('div');
-pn.className='ix-panel';
-pn.setAttribute('role','dialog');
-pn.setAttribute('aria-label',"Ask St. Mary's");
-
-pn.innerHTML=`
-<div class="ix-h">
-<b>Ask St. Mary's</b>
-<span>AI school assistant · English / हिन्दी</span>
-</div>
-<div class="ix-m" aria-live="polite"></div>
-<div class="ix-q"></div>
-<form class="ix-f">
-<input type="text" maxlength="1200"
-placeholder="Type your question"
-aria-label="Your question" autocomplete="off">
-<button type="submit" aria-label="Send">➤</button>
-</form>`;
-
-document.body.appendChild(pn);
-document.body.appendChild(fab);
-
-var mb=$('.ix-m',pn);
-var qb=$('.ix-q',pn);
-var inp=$('input',pn);
-var form=$('form',pn);
-var sendBtn=$('button[type="submit"]',pn);
-
-function say(t,me){
- var m=document.createElement('div');
- m.className='ix-b'+(me?' me':'');
- m.textContent=t;
- m.style.whiteSpace='pre-line';
- mb.appendChild(m);
- mb.scrollTop=mb.scrollHeight;
- return m;
-}
-
-async function ask(q){
- q=String(q||'').trim();
- if(!q||chatBusy)return;
-
- say(q,true);
- chatHistory.push({role:'user',content:q});
-
- chatBusy=true;
- inp.disabled=true;
- sendBtn.disabled=true;
-
- var wait=say('Thinking…');
-
- try{
-  var response=await fetch(AI_API_URL+'/ask',{
-   method:'POST',
-   headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({
-    messages:chatHistory.slice(-10)
-   })
-  });
-
-  var data=await response.json();
-
-  if(!response.ok){
-   throw new Error(data.error||'AI service unavailable.');
-  }
-
-  if(!data.answer){
-   throw new Error('Please rephrase your question.');
-  }
-
-  wait.remove();
-
-  chatHistory.push({
-   role:'assistant',
-   content:data.answer
-  });
-
-  if(chatHistory.length>10){
-   chatHistory=chatHistory.slice(-10);
-  }
-
-  say(data.answer);
-
- }catch(error){
-  wait.remove();
-  chatHistory.pop();
-  say(error.message||('Please contact '+S.tel));
- }finally{
-  chatBusy=false;
-  inp.disabled=false;
-  sendBtn.disabled=false;
-  inp.focus();
- }
-}
-
-say("Hi! I'm the St. Mary's AI assistant. Ask me in English or Hindi about admissions, academics, facilities, rules or contact details.");
-
-[
- 'Admissions',
- 'Where is the school?',
- 'What facilities are available?',
- 'How can I contact the school?',
- 'Tell me the school history'
-].forEach(function(q){
- var b=document.createElement('button');
- b.type='button';
- b.textContent=q;
- b.addEventListener('click',function(){ask(q)});
- qb.appendChild(b);
-});
-
-form.addEventListener('submit',function(e){
- e.preventDefault();
- var v=inp.value.trim();
- if(!v||chatBusy)return;
- inp.value='';
- ask(v);
-});
-
-fab.addEventListener('click',function(){
- var o=!pn.classList.contains('open');
- pn.classList.toggle('open',o);
- fab.setAttribute('aria-expanded',o?'true':'false');
- if(o)setTimeout(function(){inp.focus()},250);
-});
-
-addEventListener('keydown',function(e){
- if(e.key==='Escape'&&pn.classList.contains('open')){
-  pn.classList.remove('open');
-  fab.setAttribute('aria-expanded','false');
-  fab.focus();
- }
-});
-
+/* Ask St. Mary's: a small helper that answers common questions */
+var S={tel:'+91 94504 82895 / 0548-2222612',mail:'stmaryconventschoolgzp@gmail.com',addr:"Tadvanva, Ghazipur, Uttar Pradesh 233001",yt:'https://youtube.com/@st.marysconventschoolghazi4649?si=TslvxI4Q3ZIZOz5B'};
+function stat(i,d){var b=$$('.hero-stat b')[i];return b?b.textContent.trim():d}
+var KB=[[/hello|hi\b|hey|namaste/,'Hello! I can help with admissions, location, contact details and facilities. What would you like to know?'],
+[/admission|apply|enrol|enroll|seat|join/,'Admissions information is in the Admissions section. For forms, dates and availability please call the school office on '+S.tel+'.','#admissions','Open Admissions'],
+[/where|address|location|map|reach|direction/,"We are at "+S.addr+". The Contact section has a map and a satellite view.",'#contact','Open map'],
+[/phone|call|number|contact|talk/,'You can call the school office on '+S.tel+' or email '+S.mail+'.','#contact','Get in touch'],
+[/mail|email/,'Our email is '+S.mail+'.'],
+[/youtube|video|channel/,'Watch our school videos on YouTube: '+S.yt,S.yt,'Open YouTube'],
+[/founded|history|story|established|started|since|year/,'St. Mary\'s Convent School was established on 12 July 1982 in Tulsi Sagar, Ghazipur, and later moved to its Tadvanva campus at Vidya Niketan.','#story','Read our story'],
+[/classroom|class room|lab|facility|facilities|campus|building|library|ground/,'The school has '+stat(1,'many')+' classrooms and '+stat(2,'several')+' practical labs. See the Facilities and Campus sections, and try the 3D campus.','#facilities','See facilities'],
+[/principal|head|management/,'You can read the Principal\'s message in the Principal section.','#principal','Meet the Principal'],
+[/photo|gallery|picture|event|celebration/,'Browse school moments in the Gallery.','#gallery','Open Gallery'],
+[/rule|topper|result|notice|academic|handbook|syllabus|curriculum/,'The School Handbook covers About, Academics, Campus, Rules, Toppers and Notices.','#handbook','Open Handbook'],
+[/fee|fees|cost|tuition/,'Fee details are shared by the school office. Please call '+S.tel+'.'],
+[/time|timing|hour|open|holiday/,'For school timings and holidays, please check Notices in the Handbook or call '+S.tel+'.','#handbook','Open Handbook'],
+[/thank|thanks/,'You\'re welcome! Anything else I can help with?']];
+var fab=document.createElement('button');fab.className='ix-fab';fab.type='button';fab.setAttribute('aria-label','Ask St. Mary\'s');fab.setAttribute('aria-expanded','false');fab.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8 9.5h8M8 12.5h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+var pn=document.createElement('div');pn.className='ix-panel';pn.setAttribute('role','dialog');pn.setAttribute('aria-label','Ask St. Mary\'s');pn.innerHTML='<div class="ix-h"><b>Ask St. Mary\'s</b><span>Quick answers about the school</span></div><div class="ix-m" aria-live="polite"></div><div class="ix-q"></div><form class="ix-f"><input type="text" placeholder="Type your question" aria-label="Your question" autocomplete="off"><button type="submit" aria-label="Send">➤</button></form>';
+document.body.appendChild(pn);document.body.appendChild(fab);
+var mb=$('.ix-m',pn),qb=$('.ix-q',pn),inp=$('input',pn);
+function say(t,me,href,label){var m=document.createElement('div');m.className='ix-b'+(me?' me':'');m.textContent=t;if(href){var a=document.createElement('a');a.href=href;a.textContent=label+' →';if(/^http/.test(href)){a.target='_blank';a.rel='noopener noreferrer'}else a.addEventListener('click',function(){pn.classList.remove('open');fab.setAttribute('aria-expanded','false')});m.appendChild(document.createElement('br'));m.appendChild(a)}mb.appendChild(m);mb.scrollTop=mb.scrollHeight}
+function ask(q){say(q,true);var l=q.toLowerCase(),r=null;for(var i=0;i<KB.length;i++){if(KB[i][0].test(l)){r=KB[i];break}}
+  setTimeout(function(){r?say(r[1],false,r[2],r[3]):say('I\'m not sure about that. Please call the school office on '+S.tel+' or email '+S.mail+'.',false,'#contact','Contact us')},reduce?0:420)}
+say('Hi! I\'m the St. Mary\'s helper. Ask me about admissions, the campus or how to reach us.');
+['Admissions','Where is the school?','Contact','Our story','Facilities'].forEach(function(q){var b=document.createElement('button');b.type='button';b.textContent=q;b.addEventListener('click',function(){ask(q)});qb.appendChild(b)});
+$('form',pn).addEventListener('submit',function(e){e.preventDefault();var v=inp.value.trim();if(!v)return;inp.value='';ask(v)});
+fab.addEventListener('click',function(){var o=!pn.classList.contains('open');pn.classList.toggle('open',o);fab.setAttribute('aria-expanded',o?'true':'false');if(o)setTimeout(function(){inp.focus()},250)});
+addEventListener('keydown',function(e){if(e.key==='Escape'&&pn.classList.contains('open')){pn.classList.remove('open');fab.setAttribute('aria-expanded','false');fab.focus()}});
 })()}catch(e){console.error(e)}
