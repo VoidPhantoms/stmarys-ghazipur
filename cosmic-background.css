@@ -1,0 +1,158 @@
+/* ST. MARY'S CONVENT SCHOOL — cosmic palette + fixed background presentation */
+:root {
+  --ink: #050614;
+  --ink2: #0b1028;
+  --deep: #02030b;
+  --cream: #f2f1fa;
+  --paper: #e9e9f5;
+  --gold: #c9a86f;
+  --gold2: #ead5a8;
+  --jade: #627fe0;
+  --mint: #91b8ff;
+  --muted: #a5abc8;
+  --line: rgba(173, 183, 255, .20);
+  --glass: rgba(8, 12, 31, .72);
+}
+
+html { background: #02030b !important; }
+body {
+  background: transparent !important;
+  color: var(--cream) !important;
+}
+
+/* The existing fixed WebGL canvas becomes the full-page cosmic field. */
+#liq {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: -1 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+#atm { display: none !important; }
+#lqsw { display: none !important; }
+
+/* Deep indigo overlays let the cosmic field show through without reducing legibility. */
+.hero {
+  background: radial-gradient(ellipse at 58% 42%, #11183b 0%, #07091d 58%, #02030b 100%) !important;
+}
+.hero:before {
+  background:
+    linear-gradient(90deg, rgba(3, 4, 17, .91) 0%, rgba(5, 7, 25, .76) 29%, rgba(5, 7, 25, .18) 62%, rgba(5, 7, 25, .30) 100%),
+    linear-gradient(0deg, rgba(2, 3, 11, .92) 0%, transparent 24%, transparent 78%, rgba(2, 3, 11, .40) 100%) !important;
+}
+#heroStage { background: #03040f !important; }
+.stage-vignette {
+  background: radial-gradient(ellipse at 52% 46%, transparent 24%, rgba(2, 3, 13, .22) 70%, rgba(2, 3, 11, .56) 100%) !important;
+}
+.liquid-touch-hint { font-size: 0 !important; }
+.liquid-touch-hint:after {
+  content: "TOUCH THE COSMOS · FOLLOW THE STARS";
+  font-size: 9px;
+  letter-spacing: 1.6px;
+  color: rgba(220, 226, 255, .82);
+}
+
+main > section:not(.hero),
+body > section.xplore,
+body > footer {
+  background-color: rgba(4, 6, 20, .72) !important;
+  background-image:
+    linear-gradient(145deg, rgba(12, 16, 43, .70), rgba(3, 5, 17, .76)),
+    radial-gradient(ellipse at 82% 12%, rgba(60, 66, 158, .12), transparent 56%) !important;
+  color: var(--cream) !important;
+}
+.story, .values, .campus, .admissions, .updates, .contact, .xplore {
+  background-color: rgba(4, 6, 20, .72) !important;
+  background-image:
+    linear-gradient(145deg, rgba(10, 14, 37, .68), rgba(3, 5, 17, .78)),
+    radial-gradient(ellipse at 80% 10%, rgba(87, 77, 174, .10), transparent 58%) !important;
+}
+
+/* Formerly cream-coloured facilities section becomes a dark, legible glass panel. */
+.facilities {
+  background: linear-gradient(145deg, rgba(8, 12, 34, .88), rgba(3, 5, 17, .91)) !important;
+  color: var(--cream) !important;
+}
+.facilities .section-title { color: var(--cream) !important; }
+.facilities .section-kicker { color: var(--gold2) !important; }
+.facilities .lead { color: #b5bad2 !important; }
+.facility-card {
+  color: var(--cream) !important;
+  background: linear-gradient(145deg, rgba(28, 35, 76, .62), rgba(8, 12, 34, .76)) !important;
+  border-color: rgba(166, 180, 255, .20) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.13), 0 18px 42px rgba(0,0,0,.22) !important;
+}
+.facility-card h3, .facility-card p { color: var(--cream) !important; }
+.facility-card p { color: #b5bad2 !important; }
+.facility-card .num, .facility-card .symbol { color: var(--gold2) !important; }
+
+/* Re-tint existing glass surfaces and accent lights; layout and dimensions remain unchanged. */
+.header {
+  background: linear-gradient(180deg, rgba(3, 4, 16, .88), rgba(5, 7, 24, .48)) !important;
+  border-bottom-color: rgba(178, 187, 255, .13) !important;
+}
+.header.scrolled { background: rgba(4, 5, 19, .91) !important; }
+.scene-dock, .admission-note, .contact-card, .pf, .xm {
+  background: linear-gradient(145deg, rgba(15, 20, 52, .78), rgba(5, 7, 24, .72)) !important;
+  border-color: rgba(177, 187, 255, .24) !important;
+}
+.value-card, .update-card, .xc {
+  background: linear-gradient(145deg, rgba(20, 25, 62, .66), rgba(6, 8, 26, .70)) !important;
+  border-color: rgba(177, 187, 255, .18) !important;
+}
+.dock-row button.on, #lqsw button.on {
+  background: linear-gradient(135deg, #657fe0, #4c50a7) !important;
+  box-shadow: 0 0 20px rgba(104, 129, 255, .30) !important;
+  color: #fff !important;
+}
+.ix-panel { background: rgba(7, 9, 29, .97) !important; border-color: rgba(177, 187, 255, .30) !important; }
+.ix-h b, .ix-q button, .ix-b a { color: var(--gold2) !important; }
+.ix-fab { background: linear-gradient(135deg, #ead5a8, #a98b5d) !important; }
+
+/* Cosmic loading atmosphere, retaining the existing loader structure and timing. */
+#ld {
+  background: radial-gradient(ellipse at 52% 43%, #171b4a 0%, #090b25 38%, #02030b 80%) !important;
+}
+#ld:before { border-color: rgba(142, 157, 255, .18) !important; }
+#ld:after { border-color: rgba(210, 174, 117, .13) !important; }
+.loader-core {
+  border-color: rgba(185, 194, 255, .52) !important;
+  box-shadow: inset 0 0 30px rgba(113, 132, 255, .12), 0 0 55px rgba(68, 75, 180, .27) !important;
+}
+.loader-core:after { border-color: rgba(151, 170, 255, .42) !important; }
+.lq i {
+  background: linear-gradient(180deg, rgba(102, 116, 220, .25), rgba(77, 54, 143, .16)) !important;
+}
+.lq i + i { background: linear-gradient(180deg, rgba(214, 172, 112, .15), rgba(141, 105, 171, .05)) !important; }
+
+/* Replace the old click-bubble look with small stellar contact sparks. */
+.pb {
+  width: 10px !important;
+  height: 10px !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle, #fff 0 10%, rgba(179, 205, 255, .96) 22%, rgba(108, 134, 255, .55) 48%, transparent 76%) !important;
+  box-shadow: 0 0 12px rgba(151, 185, 255, .78), 0 0 25px rgba(113, 95, 255, .36) !important;
+}
+#cur, .cursor-glow {
+  background: radial-gradient(circle, rgba(117, 139, 255, .18), rgba(107, 93, 207, .05) 38%, transparent 68%) !important;
+}
+.fx-ring { border-color: rgba(202, 211, 255, .82) !important; }
+.fx-dot { background: #ead5a8 !important; }
+.fx-spot { background: radial-gradient(280px circle at var(--mx,50%) var(--my,50%), rgba(143, 164, 255, .15), transparent 62%) !important; }
+#progress { background: linear-gradient(90deg, #647fe5, #b9a0e8, #ead5a8) !important; box-shadow: 0 0 18px rgba(137, 153, 255, .42) !important; }
+.fx-band { background: linear-gradient(90deg, rgba(3, 4, 17, .92), rgba(17, 20, 52, .62), rgba(3, 4, 17, .92)) !important; }
+
+@media (max-width: 760px) {
+  main > section:not(.hero), body > section.xplore, body > footer {
+    background-image: linear-gradient(145deg, rgba(8, 10, 30, .80), rgba(3, 5, 17, .86)) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #liq { opacity: .72 !important; }
+}
