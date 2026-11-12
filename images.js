@@ -282,17 +282,18 @@ categories.forEach(function(cat){
 gg.parentNode.insertBefore(filter,gg);
 
 /* Fullscreen image viewer */
+var LBL=null;
 function sh(i){
-    ci=(i+G.length)%G.length;
-
-    li.src=IM[G[ci][0]];
-    li.alt=G[ci][1];
-
-    lc.textContent=
-        G[ci][1]+' · '+G[ci][2];
+    var n=LBL?LBL.length:G.length;
+    ci=(i+n)%n;
+    var it=LBL?LBL[ci]:[IM[G[ci][0]],G[ci][1],G[ci][2]];
+    li.src=it[0];
+    li.alt=it[1];
+    lc.textContent=it[1]+' · '+it[2];
 }
 
 function op(i){
+    LBL=null;
     sh(i);
     lb.hidden=false;
     document.documentElement.style.overflow='hidden';
@@ -342,6 +343,44 @@ G.forEach(function(g,i){
 
     gg.appendChild(f);
 });
+
+/* Photo albums: a horizontal rail of albums; each opens a vertically scrolling photo feed */
+(function(){
+var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var AL=[{"f": "01-gandhi-jayanti-2026", "t": "Gandhi Jayanti 2026", "s": "Campaign · 2 Oct 2026", "n": 17}, {"f": "02-investiture-ceremony", "t": "Investiture Ceremony", "s": "", "n": 52}, {"f": "03-icse-result-2023-2024", "t": "ICSE Result 2023–2024", "s": "", "n": 13}, {"f": "04-labours-day", "t": "Labour’s Day", "s": "", "n": 12}, {"f": "05-games-2023", "t": "Games 2023", "s": "", "n": 8}, {"f": "06-annual-function-2022", "t": "Annual Function 2022", "s": "", "n": 152}];
+function src(a,k){return 'img/albums/'+a.f+'/'+(a.p?a.p[k]:'p'+('00'+(k+1)).slice(-3)+'.webp')}
+var wrap=document.createElement('div');wrap.className='alw';
+wrap.innerHTML='<div class="alw-h"><small>PHOTO ALBUMS</small><b>Browse by event</b><span>Swipe or drag &rarr;</span></div><div class="alr" role="list"></div>';
+var rail=wrap.querySelector('.alr');
+AL.forEach(function(a,ai){var b=document.createElement('button');b.type='button';b.className='alb';b.setAttribute('role','listitem');b.setAttribute('aria-label','Open album: '+a.t+', '+a.n+' photos');
+  b.innerHTML='<span class="alb-st"><i></i><i></i><img alt="" decoding="async"'+(ai>1?' loading="lazy"':'')+'></span><span class="alb-t"><small></small><b></b></span><span class="alb-go">Open album <em>&rarr;</em></span>';
+  b.querySelector('img').src=src(a,0);b.querySelector('small').textContent=(a.s?a.s+' · ':'')+a.n+' photos';b.querySelector('b').textContent=a.t;
+  b.addEventListener('click',function(e){openAl(ai,b)});rail.appendChild(b)});
+var hl=document.createElement('div');hl.className='alw-h alw-h2';hl.innerHTML='<small>HIGHLIGHTS</small><b>Moments from school life</b>';
+filter.parentNode.insertBefore(wrap,filter);filter.parentNode.insertBefore(hl,filter);
+(function(){var d=false,sx=0,sl=0,mv=false;rail.addEventListener('pointerdown',function(e){if(e.pointerType!=='mouse')return;d=true;mv=false;sx=e.clientX;sl=rail.scrollLeft});addEventListener('pointermove',function(e){if(!d)return;var x=e.clientX-sx;if(Math.abs(x)>4){mv=true;rail.classList.add('drag')}rail.scrollLeft=sl-x});addEventListener('pointerup',function(){d=false;setTimeout(function(){rail.classList.remove('drag')},0)});rail.addEventListener('click',function(e){if(mv){e.preventDefault();e.stopPropagation();mv=false}},true)})();
+var al=document.createElement('div');al.className='al';al.hidden=true;al.setAttribute('role','dialog');al.setAttribute('aria-modal','true');al.setAttribute('aria-label','Photo album');
+al.innerHTML='<div class="al-bar"><button type="button" class="al-x" aria-label="Close album">&#10005;</button><div class="al-tt"><small>PHOTO ALBUM</small><b></b></div><span class="al-n"></span></div><div class="al-prog" aria-hidden="true"><span></span></div><div class="al-body" tabindex="-1" data-lenis-prevent><div class="al-grid"></div></div>';
+document.body.appendChild(al);
+var body=al.querySelector('.al-body'),grid=al.querySelector('.al-grid'),prog=al.querySelector('.al-prog span'),cur=null,list=[],io=null,last=null,items=[],tk=0;
+function openAl(i,from){var a=AL[i];cur=a;last=from||document.activeElement;
+  var r=from?from.getBoundingClientRect():null;al.style.setProperty('--ox',(r?r.left+r.width/2:innerWidth/2)+'px');al.style.setProperty('--oy',(r?r.top+r.height/2:innerHeight/2)+'px');
+  al.querySelector('.al-tt b').textContent=a.t;al.querySelector('.al-n').textContent=a.n+' photos';
+  grid.innerHTML='';items=[];list=[];var frag=document.createDocumentFragment();
+  for(var k=0;k<a.n;k++){(function(k){var s=src(a,k),f=document.createElement('button');f.type='button';f.className='al-c';f.style.setProperty('--d',(k%6*55)+'ms');f.setAttribute('aria-label','Open photo '+(k+1)+' of '+a.n);
+    var im=document.createElement('img');im.alt=a.t+' photo '+(k+1);im.decoding='async';im.loading='lazy';im.src=s;f.appendChild(im);
+    var n=document.createElement('span');n.textContent=('0'+(k+1)).slice(-2);f.appendChild(n);f.addEventListener('click',function(){LBL=list;sh(k);lb.hidden=false;document.documentElement.style.overflow='hidden'});
+    list.push([s,a.t,(k+1)+' / '+a.n]);frag.appendChild(f);items.push(f)})(k)}
+  grid.appendChild(frag);al.hidden=false;document.documentElement.classList.add('al-open');body.scrollTop=0;prog.style.transform='scaleX(0)';
+  if(io)io.disconnect();
+  if('IntersectionObserver' in window&&!reduce){io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}})},{root:body,rootMargin:'0px 0px 6% 0px',threshold:.05});items.forEach(function(it){io.observe(it)})}else items.forEach(function(it){it.classList.add('in')});
+  requestAnimationFrame(function(){requestAnimationFrame(function(){al.classList.add('open');var x=al.querySelector('.al-x');if(x)x.focus({preventScroll:true})})})}
+function closeAl(){if(al.hidden)return;al.classList.remove('open');document.documentElement.classList.remove('al-open');
+  setTimeout(function(){if(!al.classList.contains('open')){al.hidden=true;grid.innerHTML='';items=[];list=[];if(io)io.disconnect()}},reduce?0:560);if(last&&last.focus)last.focus({preventScroll:true})}
+al.querySelector('.al-x').onclick=closeAl;
+body.addEventListener('scroll',function(){if(tk)return;tk=requestAnimationFrame(function(){tk=0;var m=body.scrollHeight-body.clientHeight;prog.style.transform='scaleX('+(m>0?body.scrollTop/m:0).toFixed(3)+')'})},{passive:true});
+addEventListener('keydown',function(e){if(e.key==='Escape'&&!al.hidden&&lb.hidden)closeAl()});
+})();
 
 /* Filter functionality */
 filter.addEventListener('click',function(e){
