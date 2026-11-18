@@ -329,7 +329,7 @@ if(ids.length){var dn=document.createElement('nav');dn.className='ix-dots';dn.se
   ids.forEach(function(id){var a=document.createElement('a');a.href='#'+id;a.setAttribute('aria-label',id);a.innerHTML='<span>'+id.replace(/-/g,' ')+'</span>';dn.appendChild(a)});document.body.appendChild(dn);
   if('IntersectionObserver' in window){var so=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)$$('a',dn).forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id)})})},{rootMargin:'-45% 0px -50% 0px'});ids.forEach(function(id){so.observe(document.getElementById(id))})}}
 /* Ask St. Mary's: answers from the school's own web page content (grounded), with an optional free AI upgrade */
-var AI_ENDPOINT='';   /* optional: paste your Cloudflare Worker URL here to switch on AI answers and study help (see ai-worker.js) */
+var AI_ENDPOINT='https://ask-stmarys-ai.void-92e.workers.dev/';   /* optional: paste your Cloudflare Worker URL here to switch on AI answers and study help (see ai-worker.js) */
 var SCH={tel:'+91 94504 82895 / 0548-2222612',mail:'stmaryconventschoolgzp@gmail.com',addr:'Tadvanva, Ghazipur, Uttar Pradesh 233001',yt:'https://youtube.com/@st.marysconventschoolghazi4649?si=TslvxI4Q3ZIZOz5B'};
 var CARE_HI='मुझे खेद है कि आप ऐसा महसूस कर रहे हैं। कृपया अभी किसी भरोसेमंद वयस्क, शिक्षक या माता-पिता से बात करें। भारत में आप 24 घंटे मुफ़्त Tele-MANAS हेल्पलाइन 14416 या 1-800-891-4416 पर कॉल कर सकते हैं। खतरे में हों तो 112 पर कॉल करें।';
 function hasHi(s){return /[\u0900-\u097F]/.test(s)}
